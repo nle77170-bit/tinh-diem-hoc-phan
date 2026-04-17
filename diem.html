@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý điểm</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    input {
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    
+    #subject {
+      flex: 1;
+      min-width: 150px;
+    }
+    
+    #score, #credits {
+      flex: 0 0 100px;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    button {
+      padding: 12px 20px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-weight: bold;
+    }
+    
+    button:hover {
+      background: #5568d3;
+    }
+    
+    .btn-edit {
+      background: #48bb78;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+    
+    .btn-edit:hover {
+      background: #38a169;
+    }
+    
+    .btn-delete {
+      background: #f56565;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+    
+    .btn-delete:hover {
+      background: #e53e3e;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 15px;
+      margin: 25px 0;
+      padding: 20px;
+      background: #f0f4ff;
+      border-radius: 8px;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .stat-rank {
+      font-size: 14px;
+      color: #48bb78;
+      padding: 5px 10px;
+      background: #e6fffa;
+      border-radius: 5px;
+      margin-top: 5px;
+      display: inline-block;
+    }
+    
+    h3 {
+      color: #333;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+    
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: #f7fafc;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .subject-info {
+      flex: 1;
+      font-size: 14px;
+      color: #333;
+    }
+    
+    .subject-name {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .subject-details {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+    
+    .subject-score {
+      color: #667eea;
+      font-weight: bold;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .empty {
+      text-align: center;
+      color: #999;
+      padding: 20px;
+      font-size: 14px;
+    }
+
+    .status {
+      text-align: center;
+      font-size: 12px;
+      color: #999;
+      margin-top: 20px;
+    }
+
+    .label-small {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>📚 Quản lý điểm - Tính GPA</h2>
+  
+  <div class="input-group">
+    <input id="subject" placeholder="Tên môn học">
+    <input id="score" type="number" placeholder="Điểm" min="0" max="10" step="0.5">
+    <div class="label-small">Tín chỉ:</div>
+    <input id="credits" type="number" placeholder="TC" min="1" max="5" value="3">
+    <button onclick="save()">Lưu</button>
+  </div>
+
+  <!-- Thống kê -->
+  <div class="stats">
+    <div class="stat-item">
+      <div class="stat-label">Điểm Trung Bình</div>
+      <div class="stat-value" id="avgScore">-</div>
+      <div class="stat-label" style="margin-top: 8px; font-size: 11px;">GPA</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Điểm TB Có Trọng Số</div>
+      <div class="stat-value" id="weightedAvg">-</div>
+      <div class="stat-label" style="margin-top: 8px; font-size: 11px;">Theo tín chỉ</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Xếp Loại</div>
+      <div class="stat-rank" id="ranking">-</div>
+    </div>
+  </div>
+
+  <h3>Danh sách môn học</h3>
+  <div id="list"></div>
+  <div class="status" id="status"></div>
+</div>
+
+<script>
+let editId = null;
+let subjects = [];
+
+function loadFromStorage() {
+  const data = localStorage.getItem('subjects');
+  subjects = data ? JSON.parse(data) : [];
+  load();
+}
+
+function saveToStorage() {
+  localStorage.setItem('subjects', JSON.stringify(subjects));
+}
+
+function calculateStats() {
+  if (subjects.length === 0) {
+    document.getElementById("avgScore").textContent = "-";
+    document.getElementById("weightedAvg").textContent = "-";
+    document.getElementById("ranking").textContent = "-";
+    return;
+  }
+
+  // Điểm trung bình đơn giản
+  const avgScore = (subjects.reduce((sum, s) => sum + s.score, 0) / subjects.length).toFixed(2);
+  
+  // Điểm trung bình có trọng số (theo tín chỉ)
+  const totalCredits = subjects.reduce((sum, s) => sum + s.credits, 0);
+  const weightedSum = subjects.reduce((sum, s) => sum + (s.score * s.credits), 0);
+  const weightedAvg = (weightedSum / totalCredits).toFixed(2);
+
+  // Xếp loại theo điểm trung bình có trọng số
+  let ranking = "";
+  if (weightedAvg >= 8.5) ranking = "🌟 Xuất sắc";
+  else if (weightedAvg >= 8) ranking = "⭐ Giỏi";
+  else if (weightedAvg >= 7) ranking = "✓ Khá";
+  else if (weightedAvg >= 5.5) ranking = "○ Trung bình";
+  else ranking = "✗ Yếu";
+
+  document.getElementById("avgScore").textContent = avgScore;
+  document.getElementById("weightedAvg").textContent = weightedAvg;
+  document.getElementById("ranking").textContent = ranking;
+}
+
+window.save = function () {
+  const subject = document.getElementById("subject").value.trim();
+  const score = parseFloat(document.getElementById("score").value);
+  const credits = parseInt(document.getElementById("credits").value) || 3;
+
+  if (!subject || isNaN(score) || score < 0 || score > 10) {
+    alert("Vui lòng nhập dữ liệu hợp lệ (Điểm: 0-10)!");
+    return;
+  }
+
+  try {
+    if (editId) {
+      const index = subjects.findIndex(s => s.id === editId);
+      if (index !== -1) {
+        subjects[index] = { id: editId, subject, score, credits };
+      }
+      editId = null;
+    } else {
+      subjects.push({
+        id: Date.now().toString(),
+        subject,
+        score,
+        credits
+      });
+    }
+
+    saveToStorage();
+    document.getElementById("subject").value = "";
+    document.getElementById("score").value = "";
+    document.getElementById("credits").value = "3";
+    load();
+  } catch (err) {
+    console.error(err);
+    alert("Lỗi khi lưu dữ liệu!");
+  }
+};
+
+function load() {
+  const list = document.getElementById("list");
+
+  if (subjects.length === 0) {
+    list.innerHTML = '<div class="empty">Chưa có môn học nào</div>';
+  } else {
+    list.innerHTML = "";
+    subjects.forEach((item) => {
+      const div = document.createElement("div");
+      div.className = "list-item";
+      div.innerHTML = `
+        <div class="subject-info">
+          <div class="subject-name">${item.subject}</div>
+          <div class="subject-score">Điểm: ${item.score}/10</div>
+          <div class="subject-details">Tín chỉ: ${item.credits}</div>
+        </div>
+        <div class="btn-group">
+          <button class="btn-edit" onclick="edit('${item.id}', '${item.subject}', ${item.score}, ${item.credits})">Sửa</button>
+          <button class="btn-delete" onclick="remove('${item.id}')">Xóa</button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  calculateStats();
+}
+
+window.edit = function (id, subject, score, credits) {
+  document.getElementById("subject").value = subject;
+  document.getElementById("score").value = score;
+  document.getElementById("credits").value = credits;
+  editId = id;
+  document.getElementById("subject").focus();
+};
+
+window.remove = function (id) {
+  if (confirm("Bạn chắc chắn muốn xóa?")) {
+    subjects = subjects.filter(s => s.id !== id);
+    saveToStorage();
+    load();
+  }
+};
+
+loadFromStorage();
+document.getElementById("status").textContent = "✅ Dữ liệu được lưu trên máy của bạn";
+</script>
+
+</body>
+</html>
